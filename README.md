@@ -1,4 +1,4 @@
-# UCB EECS151 SP22 Mofang's ASIC Lab 1
+# UCB EECS151 SP22 Mofang's ASIC Lab
 
 <p align="center">
 Shi Mofang
