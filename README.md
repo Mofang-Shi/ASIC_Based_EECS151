@@ -28,4 +28,4 @@ Linux系统：[Ubuntu(来自清华镜像)](https://mirrors.tuna.tsinghua.edu.cn/
 
 教程来自（英文）：[Learning the Shell](http://linuxcommand.org/lc3_learning_the_shell.php)
 
-我的学习笔记&翻译：[Linux基础](lab1_learn/Linux_Basic.md)
+我的学习笔记&翻译：[Linux基础](asic_lab_1/Linux_Basic.md)
