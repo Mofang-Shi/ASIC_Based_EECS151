@@ -1,8 +1,6 @@
 
 # Linux基础
 
-[TOC]
-
 ## 介绍
 
 本教程来自`UCB EECS151 ASIC Lab1`推荐阅读的教程：Learning the Shell：[Learning the Shell](http://linuxcommand.org/lc3_learning_the_shell.php)
@@ -1113,4 +1111,125 @@ chmod 600 some_file
 
 在上面的示例中，我们将`some_file`的组所有权从之前的组更改为“`new_group`”。我们必须是**文件或目录的所有者**才能执行`chgrp`。
 
-## 十、Job Control
+## 十、控制工作（Job Control）
+
+在章我们将研究Linux的多任务处理性质，以及如何通过命令行界面（command line interface）对其进行控制。
+
+与任何多任务操作系统一样，Linux同时执行多个进程。实际上，单个处理器内核一次只能执行一个进程，但Linux内核设法让每个进程在处理器上轮到它，并且每个进程似乎同时运行。
+
+有几个命令用于控制进程。它们是：
+
+- `ps` - 列出系统上运行的进程
+
+- `kill` - 向一个或多个进程发送信号（通常是为了“杀死”一个进程）
+
+- `jobs` - 列出您自己的流程的另一种方式
+
+- `bg` - 将一个过程放在后台
+
+- `fg` - 将一个过程放在前台
+
+### 一个实例
+
+虽然这个主题似乎相当晦涩难懂，但对于主要使用图形用户界面的普通用户来说，它可能非常实用。虽然可能不明显，但大多数图形程序都可以从命令行启动。
+
+这里有一个例子：有一个名为`xload`的X Window系统附带的小程序，它显示一个表示系统负载的图表。我们可以通过键入以下内容来执行此程序：
+
+```xload```
+
+
+请注意，`xload`窗口出现并开始显示系统负载图。在`xload`不可用的系统上，请尝试`gedit`。另请注意，在程序启动后，我们的提示没有再次出现。在控件返回之前，shell正在等待程序完成。如果我们关闭`xload`窗口，`xload`程序将终止并返回提示。
+
+### 将程序放入后台（Putting a Program into the Background）
+
+现在，为了让生活更轻松一点，我们将再次启动xload程序，但这次我们将把它放在后台，以便提示返回。为此，我们像这样执行xload：
+
+```xload &```
+
+在这种情况下，提示返回，因为该过程被置于后台。
+
+除了使用“&”符号将程序放入后台，我们可以键入`Ctrl-z`使该过程将被暂停。我们可以通过看到程序的窗口被冻结来验证这一点。这个过程仍然存在，但却闲置。要在后台恢复进程，请键入`bg`命令（background的缩写）。
+
+### 列出正在运行的进程（Listing Running Processes）
+
+我们可以使用`jobs`命令或更强大的`ps`命令列出正在运行的进程：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ xload
+^Z
+[1]+  Stopped                 xload
+shimofang@shimofang-virtual-machine:~$ gedit
+^Z
+[2]+  Stopped                 gedit
+shimofang@shimofang-virtual-machine:~$ jobs
+[1]-  Stopped                 xload
+[2]+  Stopped                 gedit
+shimofang@shimofang-virtual-machine:~$ ps
+    PID TTY          TIME CMD
+   7167 pts/0    00:00:00 bash
+   7465 pts/0    00:00:00 xload
+   7486 pts/0    00:00:00 gedit
+   7510 pts/0    00:00:00 ps
+```
+
+### 杀死进程（Killing a Process）
+
+假设有一个程序变得没有响应，使用`kill`命令。
+
+首先，我们需要确定我们想要杀死的过程。我们可以使用`jobs`或`ps`来做这件事。如果我们使用`jobs`，我们会得到一个工作编号（job number）。使用`ps`，我们得到了一个进程ID（PID）：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ xload &
+[1] 7612
+shimofang@shimofang-virtual-machine:~$ gedit &
+[2] 7613
+shimofang@shimofang-virtual-machine:~$ jobs
+[1]-  Running                 xload &
+[2]+  Running                 gedit &
+shimofang@shimofang-virtual-machine:~$ ps
+    PID TTY          TIME CMD
+   7603 pts/0    00:00:00 bash
+   7612 pts/0    00:00:00 xload
+   7613 pts/0    00:00:00 gedit
+   7637 pts/0    00:00:00 ps
+shimofang@shimofang-virtual-machine:~$ kill %1
+[1]-  Terminated              xload
+shimofang@shimofang-virtual-machine:~$ kill 7613
+shimofang@shimofang-virtual-machine:~$ jobs
+[2]+  Terminated              gedit
+shimofang@shimofang-virtual-machine:~$ ps
+    PID TTY          TIME CMD
+   7603 pts/0    00:00:00 bash
+   7646 pts/0    00:00:00 ps
+```
+
+### 关于`kill`
+
+虽然`kill`命令用于“杀死”进程，但其真正目的是向进程发送信号（signals）。大多数时候，信号旨在告诉过程消失，但远不止于此。程序（如果编写得当）监听来自操作系统的信号并响应它们，通常是为了允许一些优雅的终止方法。
+
+例如，文本编辑器（text editor）可能会监听任何指示用户正在注销或计算机正在关机的信号。当它收到此信号时，它可以在退出之前保存正在进行的工作。`kill`命令可以向进程发送各种信号。
+
+键入```kill -l```将打印它支持的信号列表。许多相当晦涩难懂，但有几个是方便的：
+
+| 信号# | 名字    | 描述                                                                                                                                       |
+|-------|---------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| 1     | SIGHUP  | 挂断信号。程序可以监听此信号并采取行动。当您关闭终端时，此信号会发送到在终端中运行的进程。                                                 |
+| 2     | SIGINT  | 中断信号。这个信号被提供给进程来中断它们。程序可以处理此信号并对其进行操作。我们也可以通过在程序运行的终端窗口中键入Ctrl-c直接发出此信号。 |
+| 15    | SIGTERM | 终止信号。此信号提供给进程以终止它们。同样，程序可以处理此信号并采取行动。如果没有指定信号，这是kill命令发送的默认信号。                   |
+| 9     | SIGKILL | 杀死信号。此信号导致Linux内核立即终止该进程。程序无法监听此信号。                                                                          |
+
+使用格式如下：
+
+```
+kill -SIGTERM 2931
+kill -9 2931
+kill -SIGKILL 2931
+```
+
+现在，让我们假设我们有一个无可救药的程序，我们想摆脱它。我们是这样做的：
+
+- 使用`ps`命令获取我们要终止的进程的进程ID（PID）。
+
+- 为该PID发出终止命令。
+
+- 如果进程拒绝终止（即它忽略了信号），请发送越来越苛刻的信号，直到它终止。
