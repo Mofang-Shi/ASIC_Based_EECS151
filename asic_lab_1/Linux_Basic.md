@@ -258,7 +258,168 @@ file name_of_file
 
 关于以上目录更多信息请访问：[Second Lesson: A Guided Tour](http://linuxcommand.org/lc3_lts0040.php)
 
-## 五、Manipulating Files
+### 我的Linux旅行
+先访问一下`/boot`，列出其中的文件：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ cd /boot
+shimofang@shimofang-virtual-machine:/boot$ ls
+config-6.2.0-26-generic      memtest86+.elf
+config-6.2.0-33-generic      memtest86+_multiboot.bin
+efi                          System.map-6.2.0-26-generic
+grub                         System.map-6.2.0-33-generic
+initrd.img                   vmlinuz
+initrd.img-6.2.0-26-generic  vmlinuz-6.2.0-26-generic
+initrd.img-6.2.0-33-generic  vmlinuz-6.2.0-33-generic
+initrd.img.old               vmlinuz.old
+memtest86+.bin
+
+```
+
+我想看看Linux内核是个什么东西：
+```shell
+shimofang@shimofang-virtual-machine:/boot$ file vmlinuz
+vmlinuz: symbolic link to vmlinuz-6.2.0-33-generic
+shimofang@shimofang-virtual-machine:/boot$ file vmlinuz-6.2.0-33-generic
+vmlinuz-6.2.0-33-generic: regular file, no read permission
+
+```
+
+Shell告诉我`vmlinuz`是一个符号链接（symbolic links），指向`vmlinuz-6.2.0-33-generic`。于是尝试访问这个对象，结果被无情拒绝（因为是$不是#）。。。好吧，换个目录试试：
+
+```shell
+shimofang@shimofang-virtual-machine:/boot$ cd ..
+shimofang@shimofang-virtual-machine:/$  cd /etc
+shimofang@shimofang-virtual-machine:/etc$ ls
+acpi                           hostid               polkit-1
+adduser.conf                   hostname             ppp
+alsa                           hosts                printcap
+alternatives                   hosts.allow          profile
+
+
+and many more...
+
+
+fwupd                          NetworkManager       udisks2
+gai.conf                       networks             ufw
+gdb                            newt                 update-manager
+gdm3                           nftables.conf        update-motd.d
+geoclue                        nsswitch.conf        update-notifier
+ghostscript                    openvpn              UPower
+
+
+shimofang@shimofang-virtual-machine:/etc$ file hostid
+hostid: data
+shimofang@shimofang-virtual-machine:/etc$ file networks
+networks: ASCII text
+shimofang@shimofang-virtual-machine:/etc$ less networks
+```
+
+访问`hostid`，结果为`data`型。换一个`networks`，终于找到了`ASCII text`型！！！最后用用`less`命令查看。
+
+## 五、操作文件（Manipulating Files）
+
+这个部分将会使用到三个命令：
+
+`cp` - 复制文件和目录
+
+`mv` - 移动或重命名文件和目录
+
+`rm` - 删除文件和目录
+
+`mkdir` - 创建目录
+
+这四个命令是最常用的Linux命令之一。它们是操作文件和目录的基本命令。
+
+不过这些命令执行的一些任务如果使用图形文件管理器（graphical file manager）更容易完成。使用文件管理器，您可以将文件从一个目录拖放到另一个目录，剪切和粘贴文件，删除文件等。那么，为什么要使用这些旧的命令行程序呢？
+
+答案是权力和灵活性。虽然使用图形文件管理器执行简单的文件操作很容易，但使用命令行程序可以更容易地执行复杂的任务。例如，您如何将所有HTML文件从一个目录复制到另一个目录，且只复制目标目录中不存在或比目标目录中版本更新的文件？使用文件管理器相当困难，但使用命令行非常简单：
+
+```shell
+shimofang@shimofang-virtual-machine:/$ cp -u *.html destination
+```
+
+### 通配符（Wildcards）
+
+由于shell经常使用文件名，它提供了特殊字符来帮助您快速指定文件名组。这些特殊字符被称为通配符。通配符允许您根据字符模式选择文件名。下表列出了通配符及其选择的内容：
+
+| 通配符        | 含义                                                                                                                                                                                                                     |
+|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| *             | 匹配任何字符                                                                                                                                                                                                             |
+| ?             | 匹配任何单个字符                                                                                                                                                                                                         |
+| [characters]  | 匹配作为集合字符成员中的任何字符。字符集也可以表示为 POSIX字符类，例如： `[:alnum:]`   字母数字字符； `[:alpha:]`   字母字符； `[:digit:]`   数字 `[:upper:]`；  大写字母字符 `[:lower:]`；  小写字母字符                                |
+| [!characters] | 匹配任何不是字符集里的字符                                                                                                                                                                                               |
+
+使用通配符，可以为文件名构建非常复杂的选择标准。以下是一些模式示例以及它们匹配的内容：
+
+| 格式                          | 匹配内容                                          |
+|-------------------------------|---------------------------------------------------|
+| `*`                             | 所有文件名                                        |
+| `g*`                            | 以字符“g”开头的所有文件名                         |
+| `b*.txt`                        | 以字符“b”开头，以字符“.txt”结尾的所有文件名       |
+| `Data???`                       | 任何以字符“Data”开头的文件名，后跟3个字符         |
+| `[abc]*`                        | 任何以“a”或“b”或“c”开头的文件名，后跟任何其他字符 |
+| `[[:upper:]]*`                  | 任何以一个大写字母开头的文件名                    |
+| `BACKUP.[[:digit:]][[:digit:]]` | 以字符“BACKUP”开头的任何文件名，后跟正好两个数字  |
+| `*[![:lower:]]`                 | 任何不以小写字母结尾的文件名                      |
+
+### `cp`
+
+`cp`程序复制文件和目录，它还可用于将多个文件（和/或目录）复制到不同的目录。
+
+一些有用的`cp`用例及其可选项（-options）：
+
+| 命令              | 结果                                                                                                        |
+|-------------------|-------------------------------------------------------------------------------------------------------------|
+| `cp file1 file2`   | 将`file1`的内容复制到`file2`中。如果`file2`不存在，则创建它；否则，`file2`将用`file1`的内容静默覆盖。                 |
+| `cp -i file1 file2` | 如上所述。但由于指定了“`-i`”（交互式，interactive）选项，如果`file2`存在，则在用`file1`的内容覆盖之前会提示用户。 |
+| `cp file1 dir1`     | 在目录`dir1`内将`file1`的内容复制到`dir1`的名为`file1`的文件中。                                                    |
+| `cp -R dir1 dir2`   | 复制目录`dir1`的内容。如果目录`dir2`不存在，则创建它。否则，它会在目录`dir2`中创建一个名为`dir1`的目录。            |
+
+### `mv`
+
+`mv`命令根据其使用方式**移动**或**重命名**文件和目录。它要么将一个或多个文件移动到不同的目录，要么将重命名一个文件或目录。
+
+一些有用的`mv`用例及其可选项（-options）：
+
+| 命令                | 结果                                                                                         |
+|---------------------|----------------------------------------------------------------------------------------------|
+| `mv file1 file2`      | 如果`file2`不存在，则`file1`将重命名为`file2`。如果`file2`存在，其内容将静默替换为`file1`的内容。      |
+| `mv -i file1 file2`   | 如上所述，由于指定了“-i”（交互式）选项，如果`file2`存在，则在用`file1`的内容覆盖之前会提示用户。 |
+| `mv file1 file2 dir1` | 文件`file1`和`file2`被移动到目录`dir1`。如果`dir1`不存在，`mv`将以错误退出。                           |
+| `mv dir1 dir2`        | 如果`dir2`不存在，则`dir1`将重命名为`dir2`。如果`dir2`存在，则目录`dir1`将在目录`dir2`内移动。           |
+
+### `rm`
+
+`rm`命令移除（删除）文件和目录。使用递归选项`-r`，`rm`也可用于删除目录。
+
+一些有用的`rm`用例及其可选项（-options）：
+
+| 命令              | 结果                                                                       |
+|-------------------|----------------------------------------------------------------------------|
+| `rm file1 file2`    | 删除`file1`和`file2`。                                                         |
+| `rm -i file1 file2` | 如上所述，由于指定了“`-i`”（交互式）选项，因此在删除每个文件之前会提示用户。 |
+| `rm -r dir1 dir2`   | 目录`dir1`和`dir2`及其所有内容将被删除。                                       |
+
+### 谨慎使用`rm`！
+
+Linux没有undelete命令。一旦你用`rm`删除了一些东西，它就消失了。如果您不小心，特别是通配符，可以使用`rm`对系统造成巨大损害。
+
+在将`rm`与通配符一起使用之前，请尝试这个有用的技巧：
+
+**使用ls构建命令。通过这样做，您可以在删除文件之前看到通配符的效果。使用ls测试命令后，用向上箭头键调用命令，然后在命令中用rm代替ls。**
+
+### `mkdir`
+
+`mkdir`命令用于创建目录。
+
+### 使用带有通配符的命令
+
+| 命令                  | 结果                                                                                                                    |
+|-----------------------|-------------------------------------------------------------------------------------------------------------------------|
+| `cp *.txt text_files`   | 将当前工作目录中以字符“`.txt`”结尾的所有文件复制到名为`text_files`的现有目录中。                                            |
+| `mv dir1 ../*.bak dir2` | 将当前工作目录的父目录中的子目录`dir1`和以“`.bak`”结尾的所有文件移动到名为`dir2`的现有目录。                                  |
+| `rm *~`                 | 删除当前工作目录中以字符“`~`”结尾的所有文件。一些应用程序使用此命名方案创建备份文件。使用此命令会将它们从目录中清除出来。 |
 
 ## 六、Working with Commands
 
