@@ -593,7 +593,96 @@ man program
 
 系统上安装的许多软件包都有位于`/usr/share/doc`目录中的文档文件。其中大部分以纯文本格式（plain text format）存储，并且可以用`less`查看。一些文件是HTML格式的，可以使用网络浏览器（web browser）查看。我们可能会遇到一些以“`.gz`”扩展名结尾的文件。这表明它们已被`gzip`压缩程序压缩。Gzip包包括一个称为`zless`的特殊`less`版本，该版本将显示gzip压缩文本文件的内容。
 
-## 七、I/O Redirection
+## 七、I/O重定向（I/O Redirection）
+
+在本课中，我们将探索命令行程序（command line programs）使用的称为输入/输出重定向（I/O Redirection）的强大功能。正如我们所看到的，许多命令（如`ls`）在显示器上打印其输出。然而，情况不必如此。通过使用一些特殊符号，我们可以将许多命令的输出重定向（redirect）到文件、设备，甚至重定向到其他命令的输入。
+
+### 标准输出
+
+大多数显示结果的命令行程序通过将其结果发送到称为标准输出（standard output）的设施来执行此操作。默认情况下，标准输出将其内容定向到显示器。要将标准输出重定向到文件，使用“`>`”字符：
+
+```shell
+shimofang@shimofang-virtual-machine:~/doc$ cd /home/shimofang/doc
+shimofang@shimofang-virtual-machine:~/doc$ mkdir Linux_Basics
+shimofang@shimofang-virtual-machine:~/doc$ ls
+Linux_Basics
+shimofang@shimofang-virtual-machine:~/doc$ cd
+shimofang@shimofang-virtual-machine:~$ ls
+公共的  模板  视频  图片  下载  音乐  桌面  doc  snap
+shimofang@shimofang-virtual-machine:~$ ls > /home/shimofang/doc/Linux_Basics/file_list.txt
+shimofang@shimofang-virtual-machine:~$ cd /home/shimofang/doc/Linux_Basics
+shimofang@shimofang-virtual-machine:~/doc/Linux_Basics$ ls
+file_list.txt
+shimofang@shimofang-virtual-machine:~/doc/Linux_Basics$ less file_list.txt
+```
+
+每次重复上述命令时，`file_list.txt`都会用命令`ls`的输出从头开始覆盖。为了将新结果附加到文件中，我们使用“`>>`”。当附加结果时，新结果将添加到文件的末尾，从而使每次重复命令时文件更长。如果我们尝试附加重定向的输出时文件不存在，则将创建该文件。
+
+### 标准输入
+
+许多命令可以接受来自称为标准输入（standard input）的设施的输入。默认情况下，标准输入从键盘获取其内容，但与标准输出一样，它可以被重定向。要从文件而不是键盘重定向标准输入，使用“`<`”字符：
+
+```shell
+shimofang@shimofang-virtual-machine:~/doc/Linux_Basics$ sort < file_list.txt > sorted_file_list.txt
+shimofang@shimofang-virtual-machine:~/doc/Linux_Basics$ ls
+file_list.txt  sorted_file_list.txt
+```
+
+正如我们所看到的，命令可以同时重定向其输入和输出。请注意，重定向的顺序并不重要。唯一的要求是重定向运算符（“`<`”和“`>`”）必须出现在命令中的其他选项（-options）和参数（arguments）之后。
+
+### 管道（Pipelines）
+
+我们可以用I/O重定向做的最有用和最强大的事情是将**多个命令连接在一起，以形成所谓的管道（Pipelines）**。对于管道，一个命令的标准输出被输入到另一个命令的标准输入中。这里有一个非常有用的例子：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ ls -l | less
+```
+
+在本例中，`ls`命令的输出被输入到`less`。通过使用这个“`| less`”技巧，我们可以使任何命令具有滚动的输出。
+
+以下是一些可以尝试的例子：
+
+| 命令                           | 作用                                             |
+|--------------------------------|--------------------------------------------------|
+| `ls -lt \| head`                 | 显示当前目录中的10个最新文件                     |
+| `du \| sort -nr`                 | 显示目录列表以及它们消耗的空间，从最大到最小排序 |
+| `find . -type f -print \| wc -l` | 显示当前工作目录及其所有子目录中的文件总数。     |
+
+### 过滤器（Filters）
+
+管道中经常使用的一种程序被称为过滤器（Filters）。过滤器接受标准输入（standard input）并对其进行操作，并将结果发送到标准输出。通过这种方式，它们可以组合起来，以强大的方式处理信息。以下是一些可以充当过滤器的常见程序：
+
+| 程序 | 作用                                                                                                                             |
+|------|----------------------------------------------------------------------------------------------------------------------------------|
+| sort | 对标准输入进行排序，然后在标准输出上输出排序结果。                                                                               |
+| uniq | 给定标准输入中排序的数据流，它会删除重复的数据行（即确保每行都是唯一的）。                                                       |
+| grep | 检查它从标准输入收到的每行数据，并输出包含指定字符模式（specified pattern of characters）的每行。                                |
+| fmt  | 从标准输入中读取文本，然后在标准输出上输出格式化文本（formatted text）。                                                         |
+| pr   | 从标准输入中获取文本输入，并将数据拆分为带有分页符、页眉和页脚的页面，以准备打印。                                               |
+| head | 输出其输入的前几行。有助于获取文件的标头。                                                                                       |
+| tail | 输出其输入的最后几行。适用于从日志文件中获取最新条目等。                                                                         |
+| tr   | 翻译字符。可用于执行大写/小写转换或将行终止字符从一种类型更改为另一种类型（例如，将DOS文本文件转换为Unix风格的文本文件）等任务。 |
+| sed  | 流编辑器。可以进行比tr更复杂的文本翻译                                                                                           |
+| awk  | 为构建过滤器而设计的整个编程语言。非常强大。                                                                                     |
+
+### 一些例子
+
+1.**从命令行打印。** Linux提供了一个名为`lpr`的程序，该程序接受标准输入并将其发送到打印机。它经常与管道和过滤器（pipes and filters）一起使用。例如：
+
+```shell
+cat poorly_formatted_report.txt | fmt | pr | lpr
+cat unsorted_list_with_dupes.txt | sort | uniq | pr | lpr
+```
+
+在第一个示例中，我们使用`cat`读取文件并将其输出到标准输出，该输出被输送到`fmt`的标准输入中。`fmt`将文本格式化为整洁的段落，并将其输出到标准输出中，该输出被输送到`pr`的标准输入中。`pr`将文本整齐地拆分为页面并输出到标准输出，该输出被输送到`lpr`的标准输入中。`lpr`将其标准输入并将其发送到打印机。
+
+第二个示例从包含重复条目的未排序数据列表开始。首先，`cat`将列表发送到排序中，对其进行排序`sort`，并将其输入`uniq`，以删除任何重复项。下一个`pr`和`lpr`用于分页和打印列表。
+
+2.**查看`tar`文件的内容。** 您通常会看到软件作为压缩的tar文件分发。这是一个传统的Unix风格的磁带存档文件（用tar创建），已用gzip压缩。您可以通过其传统文件扩展名“`.tar.gz`”或“`.tgz`”来识别这些文件。可以使用以下命令在Linux系统上查看此类文件的目录：
+
+```shell
+tar tzvf name_of_file.tar.gz | less
+```
 
 ## 八、Expansion
 
