@@ -29,3 +29,39 @@ Linux系统：[Ubuntu(来自清华镜像)](https://mirrors.tuna.tsinghua.edu.cn/
 教程来自（英文）：[Learning the Shell](http://linuxcommand.org/lc3_learning_the_shell.php)
 
 我的学习笔记&翻译：[Linux基础](asic_lab_1/Linux_Basic.md)
+
+### 3、本系列实验Linux依赖包安装
+
+#### `git`包
+
+教程来自：[如何在 Ubuntu 20.04 上安装 Git](https://zhuanlan.zhihu.com/p/137578868)
+
+`git`软件包被包含在Ubuntu默认的软件源仓库中，并且可以使用 `apt`包管理工具安装。这是在 Ubuntu 上安装`git`最便利，最简单的方式。
+
+以`sudo`权限用户身份运行下面的命令：
+
+```
+sudo apt update
+sudo apt install git
+```
+
+运行下面的命令，打印 `git` 版本，验证安装过程：
+
+```
+git --version
+```
+
+#### `vim编辑器`
+
+以`sudo`权限用户身份运行下面的命令：
+
+```
+sudo apt install vim
+```
+
+运行下面的命令，打印 `vim` 版本，验证安装过程：
+
+```
+git --version
+```
+
