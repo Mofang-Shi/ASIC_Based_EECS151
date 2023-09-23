@@ -182,7 +182,7 @@ drwxr-xr-x   6 me       me           1024 Oct  9  2019 web_page
 
 接下来的三个代表文件组的权利，最后三个代表授予其他人的权利。
 
-###`less`
+### `less`
 
 Less是一个让我们查看文本文件的程序。这非常方便，因为许多用于控制和配置Linux的文件都是人类可读的，只需键入`less file_name`即可调用。
 
@@ -259,6 +259,7 @@ file name_of_file
 关于以上目录更多信息请访问：[Second Lesson: A Guided Tour](http://linuxcommand.org/lc3_lts0040.php)
 
 ### 我的Linux旅行
+
 先访问一下`/boot`，列出其中的文件：
 
 ```shell
@@ -277,6 +278,7 @@ memtest86+.bin
 ```
 
 我想看看Linux内核是个什么东西：
+
 ```shell
 shimofang@shimofang-virtual-machine:/boot$ file vmlinuz
 vmlinuz: symbolic link to vmlinuz-6.2.0-33-generic
@@ -319,7 +321,7 @@ shimofang@shimofang-virtual-machine:/etc$ less networks
 
 ## 五、操作文件（Manipulating Files）
 
-这个部分将会使用到三个命令：
+这个部分将会使用到四个命令：
 
 `cp` - 复制文件和目录
 
@@ -401,7 +403,7 @@ shimofang@shimofang-virtual-machine:/$ cp -u *.html destination
 | `rm -i file1 file2` | 如上所述，由于指定了“`-i`”（交互式）选项，因此在删除每个文件之前会提示用户。 |
 | `rm -r dir1 dir2`   | 目录`dir1`和`dir2`及其所有内容将被删除。                                       |
 
-### 谨慎使用`rm`！
+### 谨慎使用`rm`
 
 Linux没有undelete命令。一旦你用`rm`删除了一些东西，它就消失了。如果您不小心，特别是通配符，可以使用`rm`对系统造成巨大损害。
 
@@ -421,7 +423,175 @@ Linux没有undelete命令。一旦你用`rm`删除了一些东西，它就消失
 | `mv dir1 ../*.bak dir2` | 将当前工作目录的父目录中的子目录`dir1`和以“`.bak`”结尾的所有文件移动到名为`dir2`的现有目录。                                  |
 | `rm *~`                 | 删除当前工作目录中以字符“`~`”结尾的所有文件。一些应用程序使用此命名方案创建备份文件。使用此命令会将它们从目录中清除出来。 |
 
-## 六、Working with Commands
+## 六、使用命令工作（Working with Commands）
+
+这个部分将会使用到四个命令：
+
+`type` - 显示有关命令类型的信息
+
+`which` -找到一个命令
+
+`help`  -显示shell内置的参考页面
+
+`man`   - 显示在线命令参考
+
+### 什么是“命令”？
+
+命令可以是4种不同类型之一：
+
+- **一个可执行程序（An executable program）**。就像我们在`/usr/bin`中看到的所有文件一样。在这个类别中，程序可以编译二进制文件，如用`C`和`C++`编写的程序，或用`shell`、`Perl`、`Python`、`Ruby`等脚本语言编写的程序。
+
+- **内置在shell本身的命令（A command built into the shell itself）**。bash提供了许多内部称为shell内置的命令。例如，`cd`命令是一个内置的shell。
+
+- **外壳功能（A shell function）**。这些是集成到环境（environment）中的微型外壳脚本。我们将在后面的课程中介绍配置环境和编写shell函数，但现在请注意它们的存在。
+
+- **一个别名（An alias）**。我们可以定义自己的命令，由其他命令构建。这将在后面的课程中讨论。
+
+### 识别命令——`type`
+
+`type`命令是一个内置的shell，在给定特定命令名称的情况下，显示shell将执行的命令的类型（displays the kind of command the shell will execute）。
+
+它的工作原理是这样的：
+
+```shell
+type command
+```
+
+其中“`command`”是我们要检查的命令的名称。
+
+以下是一些例子：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ type type
+type is a shell builtin
+shimofang@shimofang-virtual-machine:~$ type ls
+ls is aliased to `ls --color=auto'
+shimofang@shimofang-virtual-machine:~$ type clear
+clear is hashed (/usr/bin/clear)
+shimofang@shimofang-virtual-machine:~$ type cp
+cp is /usr/bin/cp
+```
+
+我们看到了不同命令的结果。请注意，`ls`命令实际上是`ls --color=auto`命令的别名，现在我们知道为什么ls的输出以彩色显示了。
+
+### 识别命令——`which`
+
+有时一个系统上安装了多个版本的可执行程序。虽然这在桌面系统上并不常见，但在大型服务器上并不罕见。要确定给定可执行文件的确切位置，使用`which`命令：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ which ls
+/usr/bin/ls
+```
+
+`which`仅适用于可执行程序（executable programs），不适用于替代实际可执行程序的内置（builtins）或别名（aliases）。
+
+### 命令文档——`help`
+
+Bash为每个内置的shell都有一个帮助文档。要使用它，请键入“`help`”，后跟内置shell的名称。或者，我们可以添加`-m`选项来更改输出的格式。例如：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ type rm
+rm is /usr/bin/rm
+shimofang@shimofang-virtual-machine:~$ help -m rm
+bash: help: no help topics match `rm'.  Try `help help' or `man -k rm' or `info rm'.
+shimofang@shimofang-virtual-machine:~$ type cd
+cd is a shell builtin
+shimofang@shimofang-virtual-machine:~$ help -m cd
+NAME
+    cd - Change the shell working directory.
+
+SYNOPSIS
+    cd [-L|[-P [-e]] [-@]] [dir]
+
+DESCRIPTION
+    Change the shell working directory.
+    
+    Change the current directory to DIR.  The default DIR is the value of the
+    HOME shell variable.
+    
+    The variable CDPATH defines the search path for the directory containing
+    DIR.  Alternative directory names in CDPATH are separated by a colon (:).
+    A null directory name is the same as the current directory.  If DIR begins
+    with a slash (/), then CDPATH is not used.
+    
+    If the directory is not found, and the shell option `cdable_vars' is set,
+    the word is assumed to be  a variable name.  If that variable has a value,
+    its value is used for DIR.
+    
+    Options:
+      -L	force symbolic links to be followed: resolve symbolic
+    		links in DIR after processing instances of `..'
+      -P	use the physical directory structure without following
+    		symbolic links: resolve symbolic links in DIR before
+    		processing instances of `..'
+      -e	if the -P option is supplied, and the current working
+    		directory cannot be determined successfully, exit with
+    		a non-zero status
+      -@	on systems that support it, present a file with extended
+    		attributes as a directory containing the file attributes
+    
+    The default is to follow symbolic links, as if `-L' were specified.
+    `..' is processed by removing the immediately previous pathname component
+    back to a slash or the beginning of DIR.
+    
+    Exit Status:
+    Returns 0 if the directory is changed, and if $PWD is set successfully when
+    -P is used; non-zero otherwise.
+
+SEE ALSO
+    bash(1)
+
+IMPLEMENTATION
+    GNU bash, version 5.1.16(1)-release (x86_64-pc-linux-gnu)
+    Copyright (C) 2020 Free Software Foundation, Inc.
+    License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+```
+
+当方括号`[]`出现在命令语法的描述中时，它们表示可选项。
+
+垂直条形字符`|`表示相互排斥的项目。
+
+许多可执行程序支持“`--help`”选项，该选项显示命令支持的语法（syntax）选项的描述，一些程序不支持，但无论如何都要尝试一下。例如：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ type mkdir
+mkdir is /usr/bin/mkdir
+shimofang@shimofang-virtual-machine:~$ mkdir --help
+Usage: mkdir [OPTION]... DIRECTORY...
+Create the DIRECTORY(ies), if they do not already exist.
+
+Mandatory arguments to long options are mandatory for short options too.
+  -m, --mode=MODE   set file mode (as in chmod), not a=rwx - umask
+  -p, --parents     no error if existing, make parent directories as needed
+  -v, --verbose     print a message for each created directory
+  -Z                   set SELinux security context of each created directory
+                         to the default type
+      --context[=CTX]  like -Z, or if CTX is specified then set the SELinux
+                         or SMACK security context to CTX
+      --help     display this help and exit
+      --version  output version information and exit
+
+GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+Report any translation bugs to <https://translationproject.org/team/>
+Full documentation <https://www.gnu.org/software/coreutils/mkdir>
+or available locally via: info '(coreutils) mkdir invocation'
+```
+
+### 正式文档——`man`
+
+大多数用于命令行的可执行程序都提供了称为手册或手册页（manual or man page）的正式文档。使用一个名为`man`的特殊寻呼程序来查看它们。它被这样使用：
+
+```shell
+man program
+```
+
+其中“`program`”是查看命令的名称。手册页的格式略有不同，但通常包含标题、命令语法概要（synopsis of the command's syntax）、命令目的的描述（a description of the command's purpose）以及每个命令选项的列表和描述。手册页通常不包含示例，仅供参考，而不是教程。
+
+在大多数Linux系统上，`man`使用`less`来显示手册页面，因此所有`less`的命令在显示页面时都可以使用。
+
+### README和其他文档文件
+
+系统上安装的许多软件包都有位于`/usr/share/doc`目录中的文档文件。其中大部分以纯文本格式（plain text format）存储，并且可以用`less`查看。一些文件是HTML格式的，可以使用网络浏览器（web browser）查看。我们可能会遇到一些以“`.gz`”扩展名结尾的文件。这表明它们已被`gzip`压缩程序压缩。Gzip包包括一个称为`zless`的特殊`less`版本，该版本将显示gzip压缩文本文件的内容。
 
 ## 七、I/O Redirection
 
