@@ -615,7 +615,7 @@ shimofang@shimofang-virtual-machine:~/doc/Linux_Basics$ ls
 file_list.txt
 shimofang@shimofang-virtual-machine:~/doc/Linux_Basics$ less file_list.txt
 ```
-
+ls -l `which cp` > “/home/shimofang/Doc/Linux_Basics/file with space.txt”
 每次重复上述命令时，`file_list.txt`都会用命令`ls`的输出从头开始覆盖。为了将新结果附加到文件中，我们使用“`>>`”。当附加结果时，新结果将添加到文件的末尾，从而使每次重复命令时文件更长。如果我们尝试附加重定向的输出时文件不存在，则将创建该文件。
 
 ### 标准输入
@@ -684,7 +684,308 @@ cat unsorted_list_with_dupes.txt | sort | uniq | pr | lpr
 tar tzvf name_of_file.tar.gz | less
 ```
 
-## 八、Expansion
+## 八、扩展（Expansion）
+
+每次我们键入命令行并按回车键时，bash在执行命令之前都会对文本执行多个过程。我们已经看到了几个例子，一个简单的字符序列（例如“*”）对shell有很多意义。实现这一目标的过程被称为扩展（expansion）。通过扩展，我们键入一些东西，在shell作用于它之前，它被扩展为其他东西。为了演示我们的意思，让我们看看`echo`命令。`echo`是一个内置的shell，可以在标准输出上打印出其文本参数：
+
+```shell
+shimofang@shimofang-virtual-machine:~/doc/Linux_Basics$ echo I am mofang
+I am mofang
+```
+
+传递给`echo`的任何参数都会显示。让我们试试另一个例子：
+
+```shell
+shimofang@shimofang-virtual-machine:~/doc/Linux_Basics$ echo *
+file_list.txt sorted_file_list.txt
+```
+
+为什么`echo`没有打印“`*`”？
+
+通配符`*`意味着匹配文件名中的任何字符，但我们在最初的讨论中没有看到的是shell是如何做到这一点的。简单的答案是，在执行`echo`命令之前，shell将`*`扩展为其他东西（在本例中，是当前工作目录中文件的名称）。当按下回车键时，shell会在执行命令之前自动展开命令行上的任何符合要求的字符，因此`echo`命令不会打印`*`，只有其扩展结果。知道这一点后，我们可以看到`echo`命令的行为是符合预期的。
+
+### 路径名扩展
+
+通配符工作的机制称为路径名扩展（pathname expansion）。如果我们尝试我们在早期课程中使用的一些技术，我们将看到它们确实是扩展。给定一个看起来像这样的主目录：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ ls
+模板  桌面  Doc  Downloads  Music  Picture  Public  snap  Video
+```
+
+我们可以看见：
+```shell
+shimofang@shimofang-virtual-machine:~$ echo D*
+Doc Downloads
+shimofang@shimofang-virtual-machine:~$ echo *s
+Downloads
+shimofang@shimofang-virtual-machine:~$ echo [[:upper:]]*
+Doc Downloads Music Picture Public Video
+shimofang@shimofang-virtual-machine:~$ echo /usr/*/share
+/usr/local/share
+shimofang@shimofang-virtual-machine:~$ ls D*
+Doc:
+Linux_Basics
+
+Downloads:
+```
+
+### Tilde Expansion
+
+波浪号字符（“`~`”）具有特殊的含义。当在单词开头使用时，它会扩展到指定用户的主目录的名称（expands into the name of the home directory of the named user），如果没有命名用户，则扩展为当前用户的主目录：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ echo ~
+/home/shimofang
+shimofang@shimofang-virtual-machine:~$ echo ~shimofang
+/home/shimofang
+shimofang@shimofang-virtual-machine:~$ echo ~shiyaofang
+~shiyaofang
+```
+
+### 算术拓展
+
+shell允许通过扩展执行算术。这允许我们使用shell提示符作为计算器：
+
+```shell
+$((expression))
+```
+
+一些例子：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ echo $((2 + 2))
+4
+shimofang@shimofang-virtual-machine:~$ echo $((2^3/5+12))
+14
+shimofang@shimofang-virtual-machine:~$ echo $((99.3))
+bash: 99.3: syntax error: invalid arithmetic operator (error token is ".3")
+shimofang@shimofang-virtual-machine:~$ echo $((100/99))
+1
+shimofang@shimofang-virtual-machine:~$ echo $(($((5**2)) * 3))
+75
+shimofang@shimofang-virtual-machine:~$ echo Five divided by two equals $((5/2))
+Five divided by two equals 2
+
+```
+
+### Brace Expansion
+
+我们可以从包含大括号的模式创建多个文本字符串。这里有一个例子：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ echo Front-{A,B,C}-Back
+Front-A-Back Front-B-Back Front-C-Back
+shimofang@shimofang-virtual-machine:~$ echo 我{上午,中午,下午}在睡觉
+我上午在睡觉 我中午在睡觉 我下午在睡觉
+```
+
+要展开大括号的模式可能包含称为序言（preamble）的开头部分（leading portion）和称为后记（trailing）的尾部部分（postscript）。括号表达式本身可以包含逗号`,`分隔的字符串列表，也可以包含整数或单个字符的范围。该模式可能不包含嵌入式空格（embedded whitespace）。
+
+使用一系列整数的示例：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ echo 伞兵{1..3}号
+伞兵1号 伞兵2号 伞兵3号
+shimofang@shimofang-virtual-machine:~$ echo Number_{5..1}
+Number_5 Number_4 Number_3 Number_2 Number_1
+```
+
+反向顺序的字母：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ echo {Z..A}
+Z Y X W V U T S R Q P O N M L K J I H G F E D C B A
+```
+
+Brace Expansion可以嵌套：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ echo a{A{1,2},B{3,4}}b
+aA1b aA2b aB3b aB4b
+```
+
+那么这有什么好处呢？最常见的应用是**制作要创建的文件或目录列表**。例如，如果我们是一名摄影师，并且有大量想要组织成几年和几个月的图像，我们可能做的第一件事就是创建一系列以数字“年-月”格式命名的目录。这样，目录名称将按时间顺序排序:
+
+```shell
+shimofang@shimofang-virtual-machine:~$ cd /home/shimofang/P*e
+shimofang@shimofang-virtual-machine:~/Picture$ mkdir Photos_tset
+shimofang@shimofang-virtual-machine:~/Picture$ cd P*
+shimofang@shimofang-virtual-machine:~/Picture/Photos_tset$ mkdir {2020..2023}-{1..12}
+shimofang@shimofang-virtual-machine:~/Picture/Photos_tset$ ls
+2020-1   2020-2  2020-6  2021-1   2021-2  2021-6  2022-1   2022-2  2022-6  2023-1   2023-2  2023-6
+2020-10  2020-3  2020-7  2021-10  2021-3  2021-7  2022-10  2022-3  2022-7  2023-10  2023-3  2023-7
+2020-11  2020-4  2020-8  2021-11  2021-4  2021-8  2022-11  2022-4  2022-8  2023-11  2023-4  2023-8
+2020-12  2020-5  2020-9  2021-12  2021-5  2021-9  2022-12  2022-5  2022-9  2023-12  2023-5  2023-9
+```
+
+### 参数扩展（Parameter Expansion）
+
+这是一个在shell脚本中比直接在命令行上更有用的功能。它的许多功能都与系统存储小块数据并给每个块命名的能力有关。许多这样的块，更恰当地称为变量（variables），可供我们检查。例如，名为“`USER`”的变量包含我们的用户名。要调用参数扩展并显示USER的内容，我们将这样做：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ echo $USER
+shimofang
+```
+
+要查看可用变量的列表，请尝试以下方法：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ printenv | less
+```
+
+对于其他类型的扩展，如果我们键入错误的模式，扩展将不会发生，`echo`命令将简单地显示键入错误的模式。使用参数扩展，如果我们拼错变量的名称，扩展仍将发生，但将导致空字符串。
+
+### 命令替换（Command Substitution）
+
+命令替换允许我们使用命令的输出作为扩展：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ echo $(ls)
+模板 桌面 Doc Downloads Music Picture Public snap Video
+shimofang@shimofang-virtual-machine:~$ ls -l $(which cp)
+-rwxr-xr-x 1 root root 141824  2月  8  2022 /usr/bin/cp
+```
+
+在这里，我们将`which cp`作为参数的结果传递给`ls`命令，从而获得`cp`程序的列表，而不必知道其完整的路径名。我们不仅限于简单的命令。可以使用整个管道（Entire pipelines）（仅显示部分输出）：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ file $(ls /usr/bin/* | grep bin/zip)
+/usr/bin/zip:        ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=f4e3c129a9a184aecb256650d23ed3d92bcd60db, for GNU/Linux 3.2.0, stripped
+/usr/bin/zipcloak:   ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=754f1c0c2e6121523bd6aa727edda9ba78a412bc, for GNU/Linux 3.2.0, stripped
+/usr/bin/zipdetails: Perl script text executable
+/usr/bin/zipgrep:    POSIX shell script, ASCII text executable
+```
+
+在本例中，管道的结果成为文件命令的参数列表。在较旧的shell程序中有一个命令替换的替代语法，bash也支持该语法。它使用反向引号而不是美元符号和括号：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ ls -l `which cp`
+-rwxr-xr-x 1 root root 141824  2月  8  2022 /usr/bin/cp
+```
+
+### 引用（Quoting）
+
+观察示例：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ echo this is a     test
+this is a test
+shimofang@shimofang-virtual-machine:~$ echo The total is $100.00
+The total is 00.00
+```
+
+在第一个示例中，shell的单词拆分从`echo`命令的参数列表中删除了额外的空格。
+
+在第二个示例中，参数扩展用空字符串替换了“$1”的值，因为它是一个未定义的变量。shell提供了一种称为引用（quoting）的机制，以选择性地抑制不需要的扩展（suppress unwanted expansions）。
+
+**双引号（Double Quotes）**
+如果我们把文本放在双引号中，shell使用的所有特殊字符都会失去其特殊意义，并被视为普通字符。例外是“$”、“\”（反斜杠）和“`”（反引号）。这意味着单词拆分、路径名扩展、波浪号扩展和大括号扩展被抑制，但参数扩展、算术扩展和命令替换仍然被执行。
+
+使用双引号，我们可以处理**包含嵌入式空格**的文件名。想象一下，我们是一个名为two words.txt的文件的不幸受害者。如果我们试图在命令行上使用它，单词拆分将导致将其视为两个单独的参数，而不是所需的单个参数。
+
+**Q：如何创建带有空格的文件？**
+
+现在我们不必一直输入那些讨厌的双引号了。请记住，参数扩展、算术扩展和命令替换仍然在双引号中进行：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ echo "$USER $((2+2))"
+shimofang 4
+shimofang@shimofang-virtual-machine:~$ echo $USER $((2+2))
+shimofang 4
+```
+
+我们应该花点时间看看双引号对命令替换的影响。首先，让我们更深入地看看单词拆分是如何工作的（how word splitting works）。在我们之前的例子中，我们看到了单词拆分如何删除文本中的额外空格：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ echo this is a     test
+this is a test
+```
+
+默认情况下，单词拆分查找空格、制表符和换行符（换行符）的存在，并将其视为单词之间的分隔符。这意味着未引用的空格、制表符和换行符不被视为文本的一部分。它们仅作为分隔符。由于它们将单词分成不同的参数，我们的示例命令行包含一个命令，后跟四个不同的参数。如果我们添加双引号：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ echo "this is a     test"
+this is a     test
+```
+
+单词拆分被抑制，嵌入的空格不被视为分隔符，而是它们成为参数的一部分。添加双引号后，我们的命令行将包含一个命令，后跟一个参数。换行符被单词拆分机制视为分隔符。
+
+**单引号（Single Quotes）**
+
+当我们需要抑制所有扩展时，我们使用单引号。以下是未引用、双引号和单引号的比较：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ echo text ~/*.txt {a,b} $(echo foo) $((2+2)) $USER
+text /home/shimofang/*.txt a b foo 4 shimofang
+shimofang@shimofang-virtual-machine:~$ echo "text ~/*.txt {a,b} $(echo foo) $((2+2)) $USER"
+text ~/*.txt {a,b} foo 4 shimofang
+shimofang@shimofang-virtual-machine:~$ echo 'text ~/*.txt {a,b} $(echo foo) $((2+2)) $USER'
+text ~/*.txt {a,b} $(echo foo) $((2+2)) $USER
+```
+### 转义字符（Escaping Characters）
+
+有时我们只想引用一个字符。要做到这一点，我们可以在字符之前加反斜杠`\`，在此上下文中，反斜杠被称为转义字符。这通常是在双引号内完成的，以便有选择地防止扩展。
+
+```shell
+shimofang@shimofang-virtual-machine:~$ echo "The balance for user $USER is: \$5.00"
+The balance for user shimofang is: $5.00
+```
+
+使用转义来消除文件名中字符的特殊含义也很常见。例如，可以在文件名中使用通常对shell具有特殊意义的字符。这些将包括“`$`”、“`!`”、“`&`”等。要在文件名中包含一个特殊字符，我们可以这样做：
+
+```shell
+mv bad\&filename good_filename
+```
+
+要允许反斜杠字符出现，请键入“\\\”来转义它。请注意，在单引号中，反斜杠失去了其特殊含义，并被视为普通字符。
+
+### 反斜线技巧（Backslash Tricks）
+
+如果我们查看[GNU项目](http://www.gnu.org/)编写的任何程序的手册页，我们会发现，除了由破折号和单个字母组成的命令行选项外，还有以两个破折号开头的长选项名称。例如，以下是等价的：
+
+```
+ls -r
+ls --reverse
+```
+
+为什么支持两者？
+
+短形式适用于命令行上的懒惰打字员，长形式主要适用于脚本（scripts），尽管一些选项可能仅以长形式提供。有时，当选项模糊不清时，**最好使用长选项**。在编写需要最大可读性的脚本时，这尤其有用。
+
+使用长表单选项可以使单个命令行非常长。为了解决这个问题，我们可以使用反斜杠让shell忽略像这样的换行符：
+
+```
+ls -l \
+   --reverse \
+   --human-readable \
+   --full-time
+```
+
+以这种方式使用反斜杠允许我们在命令中嵌入换行符。请注意，要使这个技巧发挥作用，必须在反斜杠后立即键入换行。
+
+反斜杠也用于在我们的文本中插入特殊字符。这些被称为反斜杠转义字符：
+
+| 转义字符 | 名字     | 可能的用途                       |
+|----------|----------|----------------------------------|
+| \n       | 新行     | 文本中添加空白行                 |
+| \t       | 制表符   | 在文本中插入水平制表符           |
+| \a       | 警告     | 发出我们的终端蜂鸣声             |
+| \\       | 反斜线   | 插入反斜杠                       |
+| \f       | formfeed | 将此发送到我们的打印机会弹出页面 |
+
+使用反斜杠转义字符非常常见。这个想法首次出现在C编程语言中。今天，shell、C++、Perl、python、awk、tcl和许多其他编程语言都使用这个概念。将echo命令与-e选项（启用反斜杠转义的解释）一起使用：
+
+```shell
+shimofang@shimofang-virtual-machine:~$ echo -e "Inserting several blank lines\n\n\n"
+Inserting several blank lines
+-------line-------
+-------line-------
+-------line-------
+shimofang@shimofang-virtual-machine:~$ echo -e "Words\tseparated\tby\thorizontal\ttabs."
+Words	separated	by	horizontal	tabs.
+
+```
 
 ## 九、Permissions
 
