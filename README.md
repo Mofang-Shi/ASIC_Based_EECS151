@@ -32,13 +32,19 @@ Linux系统：[Ubuntu(来自清华镜像)](https://mirrors.tuna.tsinghua.edu.cn/
 
 我的学习笔记&翻译：[Linux基础](asic_lab_1/Linux_Basic.md)
 
-### 3、Vim编辑器基础
+### 3、正则表达式基础
+
+教程来自（英文）：[Learn Regular Expressions with simple, interactive exercises.](https://regexone.com)
+
+我的学习笔记：[正则表达式基础](asic_lab_1/regular_expressions.md)
+
+### 4、Vim编辑器基础
 
 教程来自（英文）：[Interactive Vim tutorial](https://www.openvim.com/tutorial.html)
 
 我的学习笔记：[Vim编辑器基础](asic_lab_1/Vim_editor_basics.md)
 
-### 4、 `git`
+### 5、 `git`
 
 在本实验中，我们将使用`git`，这是最受欢迎的版本控制系统之一。强烈建议定期将您的更改推送到`GitHub`进行备份。有时可能会意外丢失本地数据。
 
