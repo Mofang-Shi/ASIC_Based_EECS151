@@ -90,7 +90,7 @@
 
 ![正确](fig/regular_expressions_lesson6_fig_1.png "regular_expressions")
 
-## 第7课：匹配任意数量（Mr. Kleene, Mr. Kleene）
+## Lesson 7：匹配任意数量（Mr. Kleene, Mr. Kleene）
 
 正则表达式中一个强大的概念是匹配任意数量的字符的能力。
 
@@ -104,3 +104,36 @@
 
 ![正确](fig/regular_expressions_lesson7_fig_2.png "regular_expressions")
 
+## Lesson 8: 字符可选（Characters optional）
+
+另一个在匹配和提取文本（matching and extracting text）时真正常见的量词（quantifier）是`?`，表示可选性的元字符。
+
+此元字符允许您匹配前一个字符或字符组0个或一个。例如，模式`ab?c`将匹配字符串“`abc`”或“`ac`”，因为`b`被认为是可选的。
+
+与`.`点元字符类似，问号是一个特殊字符，必须使用斜杠`\?`匹配字符串中的普通问号字符。
+
+在下面的字符串中，请注意“文件”一词的复数如何取决于找到的文件数量。尝试编写一个使用可选元字符的模式，仅匹配找到一个或多个文件的行。
+
+![正确](fig/regular_expressions_lesson8_fig_1.png "regular_expressions")
+
+![正确](fig/regular_expressions_lesson8_fig_2.png "regular_expressions")
+
+## Lesson 9：所有这些空白（All this whitespace）
+
+在处理现实中的输入，如日志文件（log files）甚至用户输入（user input）时，很难不遇到空白。我们用它来格式化（format）信息片段，使其更容易在视觉上阅读和扫描，单个空格可以将扳手放入最简单的正则表达式中。
+
+您将与正则表达式一起使用的最常见的空白形式是空格（`␣`）、制表符（`\t`）、新行（`\n`）和回车符（`\r`）（在Windows环境中有用），这些特殊字符匹配各自的空格。此外，**空格特殊字符`\s`将匹配上述任何特定空格**，在处理原始输入文本时非常有用。
+
+与之对应，`\S`匹配任何不是空格的字符。
+
+![正确](fig/regular_expressions_lesson9_fig_1.png "regular_expressions")
+
+## Lesson 10: 开始和结束（Starting and ending）
+
+使用`^`（hat）和`$`（dollar sign）元字符（metacharacters）定义一个描述行开始和结束的模式。
+
+例如，我们可以使用`^success`仅匹配以“success”开头的行。如果使用`^success$`，将创建一个在开头和结尾完全匹配success的表达式。
+
+请注意，这与一组括号`[^...]`内用于排除字符的帽子不同。
+
+![正确](fig/regular_expressions_lesson10_fig_1.png "regular_expressions")
