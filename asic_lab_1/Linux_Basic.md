@@ -1031,7 +1031,7 @@ shimofang@shimofang-virtual-machine:~$ ls -l /bin/bash
 
 在下面的图表中，我们看到了输出的第一部分`-rwxr-xr-x`是如何解释的：它由一个指示文件类型的字符组成，后跟三组三个字符，传达所有者、组和其他人的读取、写入和执行权限。
 
-![文件权限](fig/file_permissions.png "file_permissions")
+![文件权限](fig/linux_basic_permissions_c9_fig_1.png "file_permissions")
 
 ### `chmod`
 
