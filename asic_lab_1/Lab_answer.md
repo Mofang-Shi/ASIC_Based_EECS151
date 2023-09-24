@@ -132,7 +132,6 @@ MiB Swap:   2140.0 total,   2136.5 free,      3.5 used.   2281.6 avail Mem
 
 ### 缺失文件，暂时跳过（2023.9.24）
 
-
 **1.删除5行**
 
 **2.搜索文本时钟**
@@ -164,3 +163,66 @@ force -deposit rocketTestHarness.dut.Raven003Top_withoutPads.TileWrap.
 ... .io_tilelink_release_data.fifomem.mem_regx015xx098x.Q 0
 ```
 
+## 问题4：了解文件权限
+
+对于下面的每个任务，请提供设置正确权限的命令。对文件的现有权限不做出假设。在`list.txt`上操作（Q1中创建的文件）。
+
+**1.将脚本更改为由您而不是其他人可执行。**
+
+由题意，权限应该调整为`-rwxrw-rw-`,对应`766`
+
+```shell
+shimofang@shimofang-virtual-machine:~$ ls -l  /home/shimofang/L1Q5/list.txt
+-rw-rw-r-- 1 shimofang shimofang 65  9月 24 01:26 /home/shimofang/L1Q5/list.txt
+shimofang@shimofang-virtual-machine:~$ chmod 766 /home/shimofang/L1Q5/list.txt
+shimofang@shimofang-virtual-machine:~$ ls -l  /home/shimofang/L1Q5/list.txt
+-rwxrw-rw- 1 shimofang shimofang 65  9月 24 01:26 /home/shimofang/L1Q5/list.txt
+```
+
+**2.为组中的每个人添加权限，以便能够执行相同的脚本**
+
+调整为`-rwxrwxrwx`，对应`777`
+
+```shell
+shimofang@shimofang-virtual-machine:~$ ls -l  /home/shimofang/L1Q5/list.txt
+-rwxrw-rw- 1 shimofang shimofang 65  9月 24 01:26 /home/shimofang/L1Q5/list.txt
+shimofang@shimofang-virtual-machine:~$ chmod 777  /home/shimofang/L1Q5/list.txt
+shimofang@shimofang-virtual-machine:~$ ls -l  /home/shimofang/L1Q5/list.txt
+-rwxrwxrwx 1 shimofang shimofang 65  9月 24 01:26 /home/shimofang/L1Q5/list.txt
+```
+
+**3.使脚本被你组中的每个人都可写，但其他人无法阅读**
+
+调整为`-rwxrwx---`，对应`770`
+
+```shell
+shimofang@shimofang-virtual-machine:~$ ls -l  /home/shimofang/L1Q5/list.txt
+-rwxrwxrwx 1 shimofang shimofang 65  9月 24 01:26 /home/shimofang/L1Q5/list.txt
+shimofang@shimofang-virtual-machine:~$ chmod 770  /home/shimofang/L1Q5/list.txt
+shimofang@shimofang-virtual-machine:~$ ls -l  /home/shimofang/L1Q5/list.txt
+-rwxrwx--- 1 shimofang shimofang 65  9月 24 01:26 /home/shimofang/L1Q5/list.txt
+```
+
+**4.将文件的所有者更改为eecs151（注意：您将无法执行此命令，因此只需提供命令本身）**
+
+使用`chown`命令：
+
+```
+sudo chown eecs151 /home/shimofang/L1Q5/list.txt
+```
+
+## 问题5：Makefile
+
+**1.添加一个新的`make`规则，该规则将创建一个名为`foo.txt`的文件。让它也运行`output_name`规则。**
+
+**2.命名至少两种方法，您可以在运行其规则后让`makefile`重新生成`output_name`目标。**
+
+## 问题6：Git的理解
+
+提交执行以下任务所需的命令：
+
+**1.您当前的Makefile与您开始使用的文件有什么区别？**
+
+**2.你如何建立一个新的分支？**
+
+**3.您查看的版本的`SHA`是什么？**
