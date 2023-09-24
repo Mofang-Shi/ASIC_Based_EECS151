@@ -147,3 +147,20 @@ MiB Swap:   2140.0 total,   2136.5 free,      3.5 used.   2281.6 avail Mem
 
 **7.保存并退出**
 
+## 问题3：正则表达式的乐趣
+
+### 缺失文件，暂时跳过（2023.9.24）
+
+对于每个正则表达式，提供基本模式和扩展模式（sed和sed -r）的答案。您可以使用多个命令来执行每个任务。对force_regs.ucli文件进行操作。
+
+**1.将所有x的周围数字更改为角括号。例如，regx15xx79x变为reg<15><79>。提示：记住启用全局替换。**
+
+**2.使文件中的每个数字都恰好为3位数字，并加了前导零（每行的最后0除外）。** 例如，第120/121行应为：
+
+```
+force -deposit rocketTestHarness.dut.Raven003Top_withoutPads.TileWrap.
+... .io_tilelink_release_data.sync_w002r.rq002_wptr_regx000x.Q 0
+force -deposit rocketTestHarness.dut.Raven003Top_withoutPads.TileWrap.
+... .io_tilelink_release_data.fifomem.mem_regx015xx098x.Q 0
+```
+
