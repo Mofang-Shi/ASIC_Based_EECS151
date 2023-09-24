@@ -14,7 +14,9 @@ Chongqing University
 
 作为一名即将转行进入微电子领域的研0学生，有必要在大四认真学习一下领域的相关基本知识。机缘巧合了解到UCB的EECS151课程，甚合我的口味，于是决定学习一下，争取达到本硕衔接的效果。
 
-## 一、前期准备
+**在进行每一个实验之前，请务必向下先行阅读相应实验的准备工作！**
+
+## 实验一：浏览计算机环境（Lab1:Getting Around the Compute Environment）
 
 ### 1、Linux环境搭建
 
@@ -30,7 +32,14 @@ Linux系统：[Ubuntu(来自清华镜像)](https://mirrors.tuna.tsinghua.edu.cn/
 
 我的学习笔记&翻译：[Linux基础](asic_lab_1/Linux_Basic.md)
 
-### 3、本系列实验Linux依赖包安装
+
+### 3、Vim编辑器基础
+
+教程来自（英文）：[Interactive Vim tutorial](https://www.openvim.com/tutorial.html)
+
+我的学习笔记：[Vim编辑器基础](asic_lab_1/Vim_editor_basics.md)
+
+### 4、本次实验Linux依赖包安装
 
 #### `git`包
 
