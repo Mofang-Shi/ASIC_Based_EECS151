@@ -32,18 +32,19 @@ Linux系统：[Ubuntu(来自清华镜像)](https://mirrors.tuna.tsinghua.edu.cn/
 
 我的学习笔记&翻译：[Linux基础](asic_lab_1/Linux_Basic.md)
 
-
 ### 3、Vim编辑器基础
 
 教程来自（英文）：[Interactive Vim tutorial](https://www.openvim.com/tutorial.html)
 
 我的学习笔记：[Vim编辑器基础](asic_lab_1/Vim_editor_basics.md)
 
-### 4、本次实验Linux依赖包安装
+### 4、 `git`
 
-#### `git`包
+在本实验中，我们将使用`git`，这是最受欢迎的版本控制系统之一。强烈建议定期将您的更改推送到`GitHub`进行备份。有时可能会意外丢失本地数据。
 
-教程来自：[如何在 Ubuntu 20.04 上安装 Git](https://zhuanlan.zhihu.com/p/137578868)
+#### 安装
+
+安装教程来自：[如何在 Ubuntu 20.04 上安装 Git](https://zhuanlan.zhihu.com/p/137578868)
 
 `git`软件包被包含在Ubuntu默认的软件源仓库中，并且可以使用 `apt`包管理工具安装。这是在 Ubuntu 上安装`git`最便利，最简单的方式。
 
@@ -59,6 +60,76 @@ sudo apt install git
 ```
 git --version
 ```
+
+#### 设置
+
+**在git中配置用户名**
+
+设置教程来自：
+[在 Git 中设置用户名](https://docs.github.com/zh/get-started/getting-started-with-git/setting-your-username-in-git)
+
+设置`git`用户名,然后确认已正确设置`git`用户名，成功后第二条命令会打印出我们设置的用户名。
+
+```
+git config --global user.name "Mona Lisa"
+git config --global user.name
+```
+
+**在git中配置您的电子邮件地址**
+
+设置教程来自：
+[设置提交电子邮件地址](https://docs.github.com/zh/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-email-preferences/setting-your-commit-email-address)
+
+设置`git`电子邮件,然后确认已正确设置`git`电子邮件，成功后第二条命令会打印出我们设置的电子邮件。
+
+```
+git config --global user.email "YOUR_EMAIL"
+git config --global user.email
+```
+
+**创建一个SSH密钥**
+
+教程：
+[生成新的 SSH 密钥并将其添加到 ssh-agent](https://docs.github.com/zh/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
+
+如果您使用密码创建SSH密钥，则每次推送/拉取时都需要键入密码。我们建议将密码留空，但这是您的选择。
+
+**将SSH密钥添加到您的GitHub帐户**
+
+教程：
+[新增 SSH 密钥到 GitHub 帐户](https://docs.github.com/zh/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
+
+#### 测试
+
+完成后，请确保您可以通过运行`ssh`对`GitHub`进行身份验证：
+
+```
+ssh -T git@github.com
+```
+
+如果正确配置，shell会显示以下内容：
+
+```
+Hi <YOUR GITHUB USERNAME>! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+#### 要求
+
+在本实验中，只需要掌握以下命令：
+
+`git status`
+
+`git add`
+
+`git commit`
+
+`git pull`
+
+`git push`
+
+`git clone`
+
+如果愿意学习如何使用一些更强大的功能（`diff, blame, branch, log, mergetool, rebase, and many others`），它们可以大大提高生产力。
 
 #### `vim编辑器`
 
