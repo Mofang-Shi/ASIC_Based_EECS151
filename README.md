@@ -44,7 +44,23 @@ Linux系统：[Ubuntu(来自清华镜像)](https://mirrors.tuna.tsinghua.edu.cn/
 
 我的学习笔记：[Vim编辑器基础](asic_lab_1/Vim_editor_basics.md)
 
-### 5、 Makefile基础（可选）
+### 5、 `GNU Make`&Makefile基础（可选）
+
+#### 安装
+
+以`sudo`权限用户身份运行下面的命令：
+
+```
+sudo apt install make
+```
+
+运行下面的命令，打印 `make` 版本，验证安装过程：
+
+```
+make --version
+```
+
+#### Makefile基础（可选）
 
 教程来自（英文）：[A Simple Makefile Tutorial](https://cs.colby.edu/maxwell/courses/tutorials/maketutor/)
 
@@ -125,23 +141,15 @@ ssh -T git@github.com
 Hi <YOUR GITHUB USERNAME>! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
-#### 要求
+#### 教程&要求
 
 在本实验中，只需要掌握以下命令：
 
-`git status`
-
-`git add`
-
-`git commit`
-
-`git pull`
-
-`git push`
-
-`git clone`
+`git status`、`git add`、`git commit`、`git pull`、`git push`、`git clone`
 
 如果愿意学习如何使用一些更强大的功能（`diff, blame, branch, log, mergetool, rebase, and many others`），它们可以大大提高生产力。
+
+我的笔记：
 
 #### `vim编辑器`
 
