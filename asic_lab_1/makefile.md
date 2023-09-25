@@ -4,6 +4,7 @@
 
 本教程来自`UCB EECS151 ASIC Lab1`推荐阅读的教程：[A Simple Makefile Tutorial](https://cs.colby.edu/maxwell/courses/tutorials/maketutor/)
 
+额外的阅读资料（个人觉得读这个更好）：[Makefile教程](https://blog.csdn.net/weixin_38391755/article/details/80380786)
 ## 一个示例（来自`Lab1`）
 
 让我们看看一个简单的makefile，来解释一些关于它们如何工作的事情。如果您查看某的文本编辑器中提供的文件夹中的`Makefile`，您可以看到以下行：
