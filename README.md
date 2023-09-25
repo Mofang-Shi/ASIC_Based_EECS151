@@ -44,11 +44,11 @@ Linux系统：[Ubuntu(来自清华镜像)](https://mirrors.tuna.tsinghua.edu.cn/
 
 我的学习笔记：[Vim编辑器基础](asic_lab_1/Vim_editor_basics.md)
 
-### 5、 Makefile基础（选择性）
+### 5、 Makefile基础（可选）
 
 教程来自（英文）：[A Simple Makefile Tutorial](https://cs.colby.edu/maxwell/courses/tutorials/maketutor/)
 
-学习中。。。
+我的学习笔记：[Makefile基础](asic_lab_1/makefile.md)
 
 ### 6、 `git`
 
