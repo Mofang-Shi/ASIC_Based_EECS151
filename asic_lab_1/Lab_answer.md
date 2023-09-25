@@ -223,6 +223,12 @@ sudo chown eecs151 /home/shimofang/L1Q5/list.txt
 
 **1.您当前的Makefile与您开始使用的文件有什么区别？**
 
+使用命令```git diff fie_name```来查看更改。
+
 **2.你如何建立一个新的分支？**
 
+使用命令`git branch new_branch_name`。
+
 **3.您查看的版本的`SHA`是什么？**
+
+`git log`中保存了所有commit修改版本的信息和其版本对应的SHA值。
