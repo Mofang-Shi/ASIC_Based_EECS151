@@ -177,4 +177,42 @@ hellomake: $(OBJ)
     $(CC) -o $@ $^ $(CFLAGS)
 ```
 
-作为最后的简化，让我们使用特殊的宏$@和$^，它们分别是:的左右两侧，以使整体编译规则更加通用。在下面的示例中，所有包含文件都应列为宏DEPS的一部分，所有对象文件都应列为宏OBJ的一部分。
+作为最后的简化，让我们使用特殊的宏`$@`和`$^`，它们分别在`:`的左右两侧，以使整体编译规则更加通用。在上面的示例中，所有包含文件`.h`都应列为`宏DEPS`的一部分，所有对象文件`.o`都应列为`宏OBJ`的一部分。
+
+如果在开始将我们的`.h`文件放在`/include`中，将我们的源代码（ source code）放在`src`目录中，并将一些本地库（local libraries）放在`lib`目录中呢，并隐藏`.o`文件，如下所示：
+
+**Makefile5**
+
+```Makefile
+IDIR =../include
+CC=gcc
+CFLAGS=-I$(IDIR)
+
+ODIR=obj
+LDIR =../lib
+
+LIBS=-lm
+
+_DEPS = hellomake.h
+DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
+
+_OBJ = hellomake.o hellofunc.o 
+OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
+
+
+$(ODIR)/%.o: %.c $(DEPS)
+    $(CC) -c -o $@ $< $(CFLAGS)
+
+hellomake: $(OBJ)
+    $(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
+.PHONY: clean
+
+clean:
+    rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ 
+```
+
+以上makefile定义了`include`和`lib`目录的路径，并将对象文件`.o`放置在`src`目录中的`obj`子目录中。它还为您想要包含的任何库定义了一个宏，例如数学库`-lm`。此makefile应位于`src`目录中。
+
+请注意，如果您键入`make clean`，它还包含一个清理源和对象目录的规则。`.PHONY`规则阻止`make`使用名为`clean`的文件。
+
