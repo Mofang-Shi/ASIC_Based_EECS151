@@ -1233,3 +1233,22 @@ kill -SIGKILL 2931
 - 为该PID发出终止命令。
 
 - 如果进程拒绝终止（即它忽略了信号），请发送越来越苛刻的信号，直到它终止。
+
+## 十一、比较文件
+
+比较文本文件（text files）是另一项有用的技能。工具通常表现为黑匣子，因此将输出文件与之前的输出文件进行比较是一项重要的调试技术。
+
+在命令行中，可以使用`diff`来比较文件：
+
+```shell
+shimofang@shimofang-virtual-machine:~/L1Q5$ diff list_sorted.txt  list.txt
+10a11
+> 666666
+```
+
+还可以比较目录的内容（`-q`标志将总结结果，仅显示不同文件的名称，`-r`标志将通过子目录递回）。对于`Vim`用户，有一个有用的内置`diff`工具：
+
+```
+vimdiff list_sorted.txt  list.txt
+```
+
