@@ -18,18 +18,18 @@ endmodule
 
 **输入波形图：**
 
-![波形图](fig/lab_answer_q1_a.png)
+<div align=center> <img src="fig/lab_answer_q1_a.png" width = 50%/> </div>
 
 **2.使用下面的原理图和输入波形，提交等效的Verilog代码和输出波形的草图。**
 
 **逻辑图:**
 
-![逻辑图](fig/lab_answer_q1_b_1.png)
+<div align=center> <img src="fig/lab_answer_q1_b_1.png" width = 50%/> </div>
 
 **输入波形图：**
 
-![波形图](fig/lab_answer_q1_b_2.png)
+<div align=center> <img src="fig/lab_answer_q1_b_2.png" width = 50%/> </div>
 
 **3.使用下面提供的输入和输出波形，提交等效的原理图和Verilog代码。提示：仅使用1个触发器和1个逻辑门。A是输入，X和Y是输出。**
 
-![波形图](fig/lab_answer_q1_c.png)
+<div align=center> <img src="fig/lab_answer_q1_c.png" width = 50%/> </div>
