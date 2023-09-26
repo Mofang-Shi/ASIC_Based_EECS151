@@ -89,7 +89,7 @@ Tests passed!
 
 **真不容易！**
 
-## 示例
+## 示例一
 
 在安装时，我们从源代码处安装了`Verilator`，并希望从编译`Verilator`的地方运行`Verilator`，则我们需要指向路径：
 
@@ -131,7 +131,6 @@ EOF
 verilator --cc --exe --build -j 0 -Wall sim_main.cpp our.v
 ```
 
-
 - `--cc`：获取`C++`输出。
 
 - `--exe`以及`sim_main.cpp`包装文件：`build`将创建一个可执行文件（an executable ），而不仅仅是一个库（library）。
@@ -157,3 +156,172 @@ shimofang@shimofang-virtual-machine:~/test_our$ obj_dir/Vour
 Hello World
 - our.v:2: Verilog $finish
 ```
+
+## 示例二
+
+参考资料：[Verilator简介与使用](https://zhuanlan.zhihu.com/p/620555169)
+
+本示例结合`gtkwave`，演示了一个包含时序逻辑和组合逻辑的边沿检测电路仿真。
+
+**a信号的上升沿给出指示信号rise，当a信号出现下降沿时给出指示信号down**
+
+### 待仿真电路`top.v`
+
+```Verilog
+`timescale 1ns/1ns
+module edge_detect(
+ input clk,
+ input rst_n,
+ input a,
+ 
+ output reg rise,
+ output reg down
+);
+ 
+ reg a_dely;
+ always @(posedge clk or posedge rst_n)
+ begin
+  if(~rst_n)
+  begin
+   rise<=0;
+   down<=0;
+   a_dely<=0;
+  end
+  else
+  begin
+   a_dely<=a;
+   if(~a_dely&&a)
+   begin
+    rise<=1;
+    down<=0;
+   end
+   else if(a_dely&~a)
+   begin
+    down<=1;
+    rise<=0;
+   end
+   else
+   begin
+    rise<=0;
+    down<=0;
+   end
+  end
+ end
+endmodule
+```
+
+### C++模式的Wrapper file（testbench）`sim_main.cpp`
+
+```C++
+#include <memory>
+#include <verilated.h>
+#include "Vtop.h"
+#include "verilated_vcd_c.h"
+
+double sc_time_stamp() { return 0; }
+int main(int argc, char **argv)
+{
+    if (false && argc && argv){}
+    const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
+    contextp->debug(0);
+    contextp->randReset(2);
+    contextp->traceEverOn(true);
+    contextp->commandArgs(argc, argv);
+    const std::unique_ptr<Vtop> top{new Vtop{contextp.get(), "TOP"}};
+    VerilatedVcdC *tfp = new VerilatedVcdC;
+    top->trace(tfp, 0);
+    tfp->open("wave.vcd"); // 设置输出的文件wave.vcd
+    top->rst_n = 0;
+    top->clk = 0;
+    top->a = 0;
+    while (!contextp->gotFinish())
+    {
+        contextp->timeInc(1);
+        top->clk = !top->clk;
+        if (!top->clk)
+        {
+            if (contextp->time() > 1 && contextp->time() < 10)
+            {
+                top->rst_n = 0; // Assert reset
+            }
+            else
+            {
+                top->rst_n = 1; // Deassert reset
+            }
+            if (contextp->time() > 15 && contextp->time() < 20)
+            {
+                top->a = 0;
+            }
+            if (contextp->time() >= 20 && contextp->time() < 30)
+            {
+                top->a = 1;
+            }
+            if (contextp->time() >= 30 && contextp->time() < 40)
+            {
+                top->a = 0;
+            }
+            if (contextp->time() >= 60)
+            {
+                break;
+            }
+        }
+        top->eval();
+        tfp->dump(contextp->time()); // dump wave
+        VL_PRINTF("[%" PRId64 "] clk=%x rst_n=%x a=%x rise=%x down=%x \n", contextp->time(), top->clk, top->rst_n, top->a, top->rise, top->down);
+    }
+    top->final();
+    tfp->close();
+    return 0;
+}
+```
+
+将`top.v` `sim_main.cpp`两个文件放到同一个文件夹中（`simple_sim`），并切换到文件夹目录进行运行仿真：
+
+**a.生成目标文件夹**
+```shell
+shimofang@shimofang-virtual-machine:~/verilator/examples/simple_sim$ verilator -Wall --trace -cc -exe top.v sim_main.cpp
+%Warning-DECLFILENAME: top.v:2:8: Filename 'top' does not match MODULE name: 'edge_detect'
+    2 | module edge_detect(
+      |        ^~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/DECLFILENAME?v=5.016
+                       ... Use "/* verilator lint_off DECLFILENAME */" and lint_on around source to disable this message.
+%Error: Exiting due to 1 warning(s)
+```
+
+注意一下这里有个警告：Verilog的模块名与文件名不一致，它告诉我们在编写的时候尽量保持一致。
+
+**b.编译**
+
+
+```shell
+shimofang@shimofang-virtual-machine:~/verilator/examples/simple_sim$ make -j -C obj_dir -f Vtop.mk
+make: Entering directory '/home/shimofang/verilator/examples/simple_alu/obj_dir'
+ccache g++  -I.  -MMD -I/home/shimofang/verilator/include -I/home/shimofang/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow       -Os -c -o sim_main.o ../sim_main.cpp
+ccache g++ -Os  -I.  -MMD -I/home/shimofang/verilator/include -I/home/shimofang/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow       -c -o verilated.o /home/shimofang/verilator/include/verilated.cpp
+ccache g++ -Os  -I.  -MMD -I/home/shimofang/verilator/include -I/home/shimofang/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow       -c -o verilated_vcd_c.o /home/shimofang/verilator/include/verilated_vcd_c.cpp
+ccache g++ -Os  -I.  -MMD -I/home/shimofang/verilator/include -I/home/shimofang/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow       -c -o verilated_threads.o /home/shimofang/verilator/include/verilated_threads.cpp
+/usr/bin/python3 /home/shimofang/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vtop.cpp Vtop___024root__DepSet_h84412442__0.cpp Vtop___024root__DepSet_heccd7ead__0.cpp Vtop__Trace__0.cpp Vtop__ConstPool_0.cpp Vtop___024root__Slow.cpp Vtop___024root__DepSet_heccd7ead__0__Slow.cpp Vtop__Syms.cpp Vtop__Trace__0__Slow.cpp > Vtop__ALL.cpp
+echo "" > Vtop__ALL.verilator_deplist.tmp
+ccache g++ -Os  -I.  -MMD -I/home/shimofang/verilator/include -I/home/shimofang/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-shadow       -c -o Vtop__ALL.o Vtop__ALL.cpp
+Archive ar -rcs Vtop__ALL.a Vtop__ALL.o
+g++ -fuse-ld=mold    sim_main.o verilated.o verilated_vcd_c.o verilated_threads.o Vtop__ALL.a    -pthread -lpthread -latomic   -o Vtop
+rm Vtop__ALL.verilator_deplist.tmp
+make: Leaving directory '/home/shimofang/verilator/examples/simple_alu/obj_dir'
+```
+
+**c.波形显示**
+
+```shell
+himofang@shimofang-virtual-machine:~/verilator/examples/simple_sim$ gtkwave wave.vcd
+Gtk-Message: 22:32:43.255: Failed to load module "canberra-gtk-module"
+
+GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+
+[1] start time.
+[59] end time.
+```
+
+附一个图：
+![wave](fig/verilator_example2_wave.png "wave")
+
+**成就感满满！**
