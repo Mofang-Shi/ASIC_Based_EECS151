@@ -175,5 +175,5 @@ git --version
 
 UCB使用的CAD软件是`Synopsys VCS`，鉴于在国内大概率没有教育许可证，改用开源的`Verilator`。
 
-我的`Verilator`笔记：[Verilog基础](asic_lab_2/STEP2_Verilator.md)
+我的`Verilator`笔记：[Verilator入门](asic_lab_2/STEP2_Verilator.md)
 
