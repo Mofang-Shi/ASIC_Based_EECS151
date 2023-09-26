@@ -165,3 +165,15 @@ sudo apt install vim
 git --version
 ```
 
+## 实验二：仿真（Lab 2:Simulation）
+
+### 1、Verilog语法回顾
+
+一些合适的教程：[Verilog基础](asic_lab_2/SETP1_Verilog.md)
+
+### 2、CAD软件
+
+UCB使用的CAD软件是`Synopsys VCS`，鉴于在国内大概率没有教育许可证，改用开源的`Verilator`。
+
+我的`Verilator`笔记：[Verilog基础](asic_lab_2/STEP2_Verilator.md)
+
