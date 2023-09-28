@@ -196,3 +196,6 @@ shimofang@shimofang-virtual-machine:~/verilator/examples/l2_q2/obj_dir$ ./Vdut_t
 <div align=center> <img src="fig/lab_answer_q2.png" width = 100%/> </div>
 
 **和题目波形保持一致！**
+
+另外，本题参考了此文章：
+[使用Verilator仿真基于Verilog编写的testbench](https://blog.csdn.net/weixin_44699856/article/details/130253574)
